@@ -1,0 +1,21 @@
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
+
+export class CreateUserDto {
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
+  @IsNotEmpty()
+  @ArrayMinSize(1, { message: 'List of wishes must contain at least one wish' })
+  @ArrayMaxSize(11, {
+    message: 'Maximum size of wishes is 10',
+  })
+  listOfWishes: string[];
+}

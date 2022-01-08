@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { Wish } from './entities/wish.entity';
-import * as _ from 'lodash';
 
 @Injectable()
 export class UserService {
@@ -31,7 +30,13 @@ export class UserService {
   }
 
   async findOne(id: number) {
-    return this.userRepository.findOne(id, { relations: ['wishes'] });
+    const user = await this.userRepository.findOne(id, {
+      relations: ['wishes'],
+    });
+    if (!user) {
+      throw new BadRequestException(`User with id ${id} does not exist`);
+    }
+    return user;
   }
 
   async randomizeUsers() {
@@ -42,14 +47,21 @@ export class UserService {
     if (users.length > 500) {
       throw new BadRequestException('Too many users to play Secret Santa');
     }
-    const randomUsers = _.shuffle(users);
-    const pairOfUsers = _.chunk(randomUsers, 2);
-    if (pairOfUsers.length % 2 !== 0) {
-      const randomUser = users[Math.floor(Math.random() * users.length)];
-      const last = pairOfUsers[pairOfUsers.length - 1];
-      last.push(randomUser);
-    }
-    return pairOfUsers;
+    const getCandidate = () => users[Math.floor(Math.random() * users.length)];
+    const santas = [];
+    const checkUsage = (candidate) =>
+      santas.find((item) => item.id === candidate.id);
+
+    return users.map((user) => {
+      let candidate = getCandidate();
+      let isUsed = checkUsage(candidate);
+      while (user.id === candidate.id || !!isUsed) {
+        candidate = getCandidate();
+        isUsed = checkUsage(candidate);
+      }
+      santas.push(candidate);
+      return [user, candidate];
+    });
   }
 
   async findAll() {

@@ -56,8 +56,8 @@ export class UserService {
       let candidate = getCandidate();
       let isUsed = checkUsage(candidate);
       while (user.id === candidate.id || !!isUsed) {
-        candidate = getCandidate();
         isUsed = checkUsage(candidate);
+        candidate = getCandidate();
       }
       santas.push(candidate);
       return [user, candidate];

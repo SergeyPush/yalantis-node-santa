@@ -32,6 +32,14 @@ Default port: 3000
 $ npm run test
 ```
 
+## Documentation
+
+```bash
+http://localhost:3000/swagger
+```
+Opens swagger documentation for application in browser
+
+
 ## Endpoints
 
 ### Create user
